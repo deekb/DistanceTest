@@ -16,7 +16,9 @@ public class Robot extends TimedRobot {
     private final MotorController rightMotor = new PWMSparkMax(1);
     private final ShuffleboardTab tab = Shuffleboard.getTab("Main");
     private final GenericEntry targetSpeedEntry = tab.add("Target speed", 0.0).getEntry();
+    private final GenericEntry targetSpeedDifferenceEntry = tab.add("Target speed difference", 0.0).getEntry();
     private double targetSpeed = 0.0;
+    private double targetSpeedDifference = 0.0;
 
     @Override
     public void robotInit() {
@@ -25,14 +27,18 @@ public class Robot extends TimedRobot {
 
         leftStick.povUp().onTrue(new InstantCommand(this::increaseSpeed));
         leftStick.povDown().onTrue(new InstantCommand(this::decreaseSpeed));
+
+        leftStick.povLeft().onTrue(new InstantCommand(this::increaseSpeedDifference));
+        leftStick.povRight().onTrue(new InstantCommand(this::decreaseSpeedDifference));
     }
 
     @Override
     public void teleopPeriodic() {
         leftMotor.set(targetSpeed);
-        rightMotor.set(targetSpeed);
+        rightMotor.set(targetSpeed - targetSpeedDifference);
 
         targetSpeedEntry.setDouble(targetSpeed);
+        targetSpeedDifferenceEntry.setDouble(targetSpeedDifference);
         CommandScheduler.getInstance().run();
     }
 
@@ -42,5 +48,13 @@ public class Robot extends TimedRobot {
 
     public void decreaseSpeed() {
         targetSpeed -= 0.1;
+    }
+
+    public void increaseSpeedDifference() {
+        targetSpeedDifference += 0.01;
+    }
+
+    public void decreaseSpeedDifference() {
+        targetSpeedDifference -= 0.01;
     }
 }
